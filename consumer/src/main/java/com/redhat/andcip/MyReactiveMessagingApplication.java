@@ -7,7 +7,6 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
@@ -15,17 +14,20 @@ public class MyReactiveMessagingApplication {
 
     @Inject
     Logger log;
+
     /**
-     * Consume the uppercase channel (in-memory) and print the messages.
+     * Consume the movie channel (in-memory) and print the messages.
      **/
     @Incoming("movies")
     public CompletionStage<Void> consume(Message<Movie> message) {
 
-        Optional<IncomingCloudEventMetadata> metadata = message.getMetadata(IncomingCloudEventMetadata.class);
-        log.info(metadata.get().getSource());
-        log.info(metadata.get().getId());
-        log.info(metadata.get().getTimeStamp());
-        log.info(message.getPayload());
+        IncomingCloudEventMetadata<Movie> metadata = message.getMetadata(IncomingCloudEventMetadata.class).orElseThrow();
+        log.info("source: " + metadata.getSource());
+        log.info("id: " + metadata.getId());
+        log.info("Timestamp: " + metadata.getTimeStamp());
+        log.info("Type: " + metadata.getType());
+        log.info("DataContentType: " + metadata.getDataContentType());
+        log.info("Data: " + metadata.getData());
         return message.ack();
     }
 }
